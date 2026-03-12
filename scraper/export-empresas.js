@@ -7,7 +7,7 @@ import { google } from 'googleapis';
 const SHEET_ID = process.env.SHEET_ID;
 const CREDS_RAW = process.env.GOOGLE_CREDENTIALS;
 
-const SHEET_NAME = 'empresas';
+const SHEET_NAME = process.env.SHEET_NAME || 'empresas';
 const OUT_PATH = path.resolve('data/empresas.csv');
 const COLS = ['fecha', 'empresa', 'rubro', 'despedidos', 'provincia', 'municipio', 'cerro_empresa'];
 
@@ -50,8 +50,7 @@ async function main() {
 
 	const rows = res.data.values || [];
 	if (rows.length < 2) {
-		console.log('Sin filas en sheet "empresas". No se modifica data/empresas.csv.');
-		return;
+		throw new Error(`Sin filas en sheet "${SHEET_NAME}". No se modifica data/empresas.csv.`);
 	}
 
 	const headers = rows[0].map((h) => h.trim().toLowerCase());
@@ -74,11 +73,15 @@ async function main() {
 	}));
 
 	fs.writeFileSync(OUT_PATH, stringifyCSV(mapped, COLS), 'utf-8');
-	console.log(`OK: data/empresas.csv actualizado (${mapped.length} filas).`);
+	console.log(`OK: data/empresas.csv actualizado (${mapped.length} filas) desde "${SHEET_NAME}".`);
 	if (mapped.length > 0) {
 		const sample = mapped[0];
+		const last = mapped[mapped.length - 1];
 		console.log(
 			`Muestra 1ra fila: ${sample.fecha} | ${sample.empresa} | ${sample.municipio} | ${sample.cerro_empresa}`
+		);
+		console.log(
+			`Muestra última fila: ${last.fecha} | ${last.empresa} | ${last.municipio} | ${last.cerro_empresa}`
 		);
 	}
 }
