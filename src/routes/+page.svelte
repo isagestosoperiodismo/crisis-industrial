@@ -145,7 +145,7 @@
 	/>
 </svelte:head>
 
-<div class="min-h-screen bg-[#f2e7cf] font-[Cormorant_Garamond] text-[#1a1a16]">
+<div class="min-h-screen bg-white font-[Cormorant_Garamond] text-[#1a1a16]">
 	<!-- Header -->
 	<header class="relative px-6 py-8 md:px-10">
 		<div class="flex flex-wrap items-start justify-between gap-6">
@@ -266,7 +266,7 @@
 	</main>
 
 	<!-- Footer -->
-	<footer class="border-t-[3px] border-[#1a1a16] bg-[#f2e7cf] px-6 py-4">
+	<footer class="border-t-[3px] border-[#1a1a16] bg-white px-6 py-4">
 		<p class="text-center font-[Space_Mono] text-[0.62rem] text-[#3a2f2b]">
 			Datos relevados desde medios de comunicación argentinos · Actualización automática vía GitHub
 			Actions

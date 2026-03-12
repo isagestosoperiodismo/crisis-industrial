@@ -77,11 +77,17 @@ const HAS_SHEETS = Boolean(process.env.SHEET_ID && (process.env.GOOGLE_CREDENTIA
 const columnKeyMap = {
 	[normalizeKey("fecha")]: "fecha",
 	[normalizeKey("empresa")]: "empresa",
+	[normalizeKey("empresa/organismo")]: "empresa",
 	[normalizeKey("rubro")]: "rubro",
+	[normalizeKey("rubro principal")]: "rubro",
 	[normalizeKey("despedidos")]: "despedidos",
+	[normalizeKey("cantidad de empleados despedidos")]: "despedidos",
 	[normalizeKey("provincia")]: "provincia",
 	[normalizeKey("municipio")]: "municipio",
-	[normalizeKey("cerro_empresa")]: "cerro_empresa"
+	[normalizeKey("si fue en pba poner en que municipio")]: "municipio",
+	[normalizeKey("cerro_empresa")]: "cerro_empresa",
+	[normalizeKey("la empresa cerro?")]: "cerro_empresa",
+	[normalizeKey("¿la empresa cerró?")]: "cerro_empresa"
 };
 
 function mapRowsToEmpresas(raw) {
