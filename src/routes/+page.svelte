@@ -1,4 +1,7 @@
-﻿<script>
+﻿<script context="module">
+	export const csr = true;
+</script>
+<script>
 	import EmpresasTable from '$lib/components/EmpresasTable.svelte';
 
 	export let data;
@@ -83,6 +86,10 @@
 		if (va > vb) return ordenDir === 'asc' ? 1 : -1;
 		return 0;
 	};
+
+	$: municipiosLista = [
+		...new Set(empresas.map((e) => (e.municipio || '').trim()).filter(Boolean))
+	].sort();
 
 	$: filtered = empresas.filter(matchesFilters).sort(compareRows);
 
@@ -210,7 +217,7 @@
 				class={ui.select}
 			>
 				<option value="">Todos los municipios</option>
-				{#each municipiosUnicos as m (m)}
+				{#each municipiosLista as m (m)}
 					<option value={m}>{m}</option>
 				{/each}
 			</select>
@@ -273,6 +280,9 @@
 		</p>
 	</footer>
 </div>
+
+
+
 
 
 
