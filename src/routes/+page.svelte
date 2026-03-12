@@ -44,6 +44,13 @@
 	const rowClass = (cerro) =>
 		`border-b-2 border-[#1a1a16] hover:bg-[#f1e2c4] ${cerro ? 'bg-[#f4d1c7]' : ''}`;
 
+	const normalizeClient = (value) =>
+		(value || '')
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLowerCase()
+			.trim();
+
 	const matchesFilters = (e) => {
 		if (filtroMunicipio && e.municipio !== filtroMunicipio) return false;
 		if (filtroRubro && e.rubro !== filtroRubro) return false;
@@ -55,8 +62,9 @@
 			}
 		}
 		if (filtroTexto) {
-			const q = filtroTexto.toLowerCase();
-			if (!e.empresa.toLowerCase().includes(q) && !e.municipio.toLowerCase().includes(q))
+			const q = normalizeClient(filtroTexto);
+			if (!q) return true;
+			if (!normalizeClient(e.empresa).includes(q) && !normalizeClient(e.municipio).includes(q))
 				return false;
 		}
 		return true;
