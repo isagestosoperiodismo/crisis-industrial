@@ -4,10 +4,11 @@
 
 <script>
 	import EmpresasTable from '$lib/components/EmpresasTable.svelte';
+	import { assets } from '$app/paths';
 
 	export let data;
 
-	const { empresas, totalEmpleados, totalCierres, rubrosUnicos } = data;
+	const { empresas, totalEmpleados, totalCierres, rubrosUnicos, lastUpdated } = data;
 
 	let filtroMunicipio = '';
 	let filtroRubro = '';
@@ -147,6 +148,7 @@
 
 <svelte:head>
 	<title>Empresas que cerraron o despidieron en el Conurbano Bonaerense</title>
+	<link rel="icon" href={`${assets}/favicon.ico`} />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
@@ -165,22 +167,24 @@
 					Registro de despidos y cierres en fábricas del Conurbano Bonaerense
 				</h1>
 				<p class="mt-1 font-[Space_Mono] text-xs text-[#3a2f2b]">
-					Desde noviembre de 2023 · Última actualización: {new Date(
-						data.lastUpdated
-					).toLocaleDateString('es-AR', {
-						day: '2-digit',
-						month: '2-digit',
-						year: 'numeric'
-					})}
+					Desde noviembre de 2023 · Última actualización:{' '}
+					{lastUpdated
+						? new Date(lastUpdated).toLocaleDateString('es-AR', {
+								day: '2-digit',
+								month: '2-digit',
+								year: 'numeric'
+						  })
+						: 'sin datos'}
 				</p>
-				<p>
-					Los datos obtenidos corresponden a un relevamiento diario que en diversos meidos de
-					comunicación tanto locales como nacionales. Al no existir un registro oficial puede ser
-					que haya errore u omisiones, Para cualquier consulta, corrección o aporte pueden llenar el
-					este <a
+				<p class="mt-2 max-w-2xl font-[Space_Mono] text-xs text-[#3a2f2b]">
+					Los datos obtenidos corresponden a un relevamiento diario en diversos medios de
+					comunicación locales y nacionales. Al no existir un registro oficial, puede haber errores
+					u omisiones. Para consultas, correcciones o aportes, completá este{' '}
+					<a
+						class="underline"
 						href="https://docs.google.com/forms/d/e/1FAIpQLSd9un2YDnEq5ZEPSRTPgFmQK2trRr2OxyaoRZAccAX6O6i7NQ/viewform?usp=publish-editor"
-						>forms.</a
-					>
+						>formulario</a
+					>.
 				</p>
 			</div>
 

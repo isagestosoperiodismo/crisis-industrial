@@ -71,6 +71,22 @@ function isCerroSi(value) {
 	return v === "si" || v === "s" || v === "si." || v === "sí";
 }
 
+function parseFecha(value) {
+	if (!value) return null;
+	const s = String(value).trim();
+	const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+	if (m) {
+		const day = Number(m[1]);
+		const month = Number(m[2]) - 1;
+		const year = Number(m[3]);
+		const d = new Date(year, month, day);
+		if (!Number.isNaN(d.getTime())) return d;
+	}
+	const d = new Date(s);
+	if (!Number.isNaN(d.getTime())) return d;
+	return null;
+}
+
 const CSV_PATH = path.resolve("data/empresas.csv");
 const HAS_SHEETS = Boolean(process.env.SHEET_ID && (process.env.GOOGLE_CREDENTIALS || fs.existsSync(path.resolve('credentials.json')) || process.env.GOOGLE_CREDENTIALS_PATH));
 
@@ -171,7 +187,19 @@ export async function load() {
 	const municipiosUnicos = [...new Set(empresas.map((e) => e.municipio).filter(Boolean))].sort();
 	const rubrosUnicos = [...new Set(empresas.map((e) => e.rubro).filter(Boolean))].sort();
 
-	return { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos };
+	const lastUpdatedDate = empresas
+		.map((e) => parseFecha(e.fecha))
+		.filter(Boolean)
+		.sort((a, b) => b - a)[0];
+
+	return {
+		empresas,
+		totalEmpleados,
+		totalCierres,
+		municipiosUnicos,
+		rubrosUnicos,
+		lastUpdated: lastUpdatedDate ? lastUpdatedDate.toISOString() : null
+	};
 }
 
 
