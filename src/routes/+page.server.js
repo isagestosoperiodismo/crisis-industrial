@@ -1,8 +1,9 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
+import { GoogleAuth } from "google-auth-library";
+import { google } from "googleapis";
 
 export const prerender = true;
-
 
 function parseCSV(content) {
 	const text = content.replace(/\uFEFF/g, "").trim();
@@ -70,22 +71,21 @@ function isCerroSi(value) {
 	return v === "si" || v === "s" || v === "si." || v === "sí";
 }
 
-export function load() {
-	const csvPath = path.resolve("data/empresas.csv");
-	const content = fs.readFileSync(csvPath, "utf-8");
+const CSV_PATH = path.resolve("data/empresas.csv");
+const HAS_SHEETS = Boolean(process.env.GOOGLE_CREDENTIALS && process.env.SHEET_ID);
 
-	const raw = parseCSV(content);
-	const columnKeyMap = {
-		[normalizeKey("fecha")]: "fecha",
-		[normalizeKey("empresa")]: "empresa",
-		[normalizeKey("rubro")]: "rubro",
-		[normalizeKey("despedidos")]: "despedidos",
-		[normalizeKey("provincia")]: "provincia",
-		[normalizeKey("municipio")]: "municipio",
-		[normalizeKey("cerro_empresa")]: "cerro_empresa"
-	};
+const columnKeyMap = {
+	[normalizeKey("fecha")]: "fecha",
+	[normalizeKey("empresa")]: "empresa",
+	[normalizeKey("rubro")]: "rubro",
+	[normalizeKey("despedidos")]: "despedidos",
+	[normalizeKey("provincia")]: "provincia",
+	[normalizeKey("municipio")]: "municipio",
+	[normalizeKey("cerro_empresa")]: "cerro_empresa"
+};
 
-	const empresas = raw.map((row, i) => {
+function mapRowsToEmpresas(raw) {
+	return raw.map((row, i) => {
 		const r = {};
 		for (const [key, value] of Object.entries(row)) {
 			const canon = columnKeyMap[normalizeKey(key)] || key;
@@ -102,6 +102,58 @@ export function load() {
 			cerro: (r["cerro_empresa"] || "").trim()
 		};
 	});
+}
+
+async function readFromSheets() {
+	const credsRaw = process.env.GOOGLE_CREDENTIALS;
+	const sheetId = process.env.SHEET_ID;
+	if (!credsRaw || !sheetId) return [];
+
+	const creds = JSON.parse(credsRaw);
+	const auth = new GoogleAuth({
+		credentials: creds,
+		scopes: [
+			"https://www.googleapis.com/auth/spreadsheets.readonly",
+			"https://www.googleapis.com/auth/drive.readonly"
+		]
+	});
+	const sheets = google.sheets({ version: "v4", auth });
+	const res = await sheets.spreadsheets.values.get({
+		spreadsheetId: sheetId,
+		range: "empresas!A:Z"
+	});
+	const rows = res.data.values || [];
+	if (rows.length < 2) return [];
+
+	const headers = rows[0].map((h) => h.trim());
+	return rows.slice(1).map((r) => {
+		const obj = {};
+		headers.forEach((h, idx) => (obj[h] = r[idx] || ""));
+		return obj;
+	});
+}
+
+function readFromCsv() {
+	if (!fs.existsSync(CSV_PATH)) return [];
+	const content = fs.readFileSync(CSV_PATH, "utf-8");
+	return parseCSV(content);
+}
+
+export async function load() {
+	let raw = [];
+
+	if (HAS_SHEETS) {
+		try {
+			raw = await readFromSheets();
+		} catch (e) {
+			console.warn("Sheets read failed, fallback to CSV:", e.message);
+			raw = readFromCsv();
+		}
+	} else {
+		raw = readFromCsv();
+	}
+
+	const empresas = mapRowsToEmpresas(raw);
 
 	const totalEmpleados = empresas.reduce((s, e) => s + e.empleados, 0);
 	const totalCierres = empresas.filter((e) => isCerroSi(e.cerro)).length;
@@ -110,4 +162,3 @@ export function load() {
 
 	return { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos };
 }
-
