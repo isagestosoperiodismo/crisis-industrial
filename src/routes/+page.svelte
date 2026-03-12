@@ -1,4 +1,4 @@
-<script>
+﻿<script>
 	export let data;
 
 	const { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos } = data;
@@ -70,37 +70,34 @@
 	}
 
 	const flechas = (col) => {
-		if (ordenCol !== col) return '↕';
-		return ordenDir === 'asc' ? '↑' : '↓';
+		if (ordenCol !== col) return "↕";
+		return ordenDir === "asc" ? "↑" : "↓";
 	};
 
 	const isCerroSi = (value) => {
 		if (!value) return false;
-		return ['Si', 'Sí', 'SÃ­', 'SI', 'si'].includes(value);
+		return ["Si", "Sí", "SÍ", "SI", "si"].includes(value);
 	};
 
 	const rubroColor = (rubro) => {
 		const r = rubro.split('/')[0].trim().toLowerCase();
-		if (r.includes('alimento')) return 'bg-green-950 text-green-400 border-green-900';
-		if (r.includes('automotriz')) return 'bg-blue-950 text-blue-400 border-blue-900';
-		if (r.includes('textil')) return 'bg-purple-950 text-purple-400 border-purple-900';
-		if (r.includes('construc')) return 'bg-yellow-950 text-yellow-400 border-yellow-900';
-		if (r.includes('logística') || r.includes('logistica'))
-			return 'bg-orange-950 text-orange-400 border-orange-900';
-		if (r.includes('comercio')) return 'bg-cyan-950 text-cyan-400 border-cyan-900';
-		if (r.includes('farmac')) return 'bg-violet-950 text-violet-400 border-violet-900';
-		if (r.includes('química') || r.includes('quimica'))
-			return 'bg-teal-950 text-teal-400 border-teal-900';
-		if (r.includes('electrodom')) return 'bg-sky-950 text-sky-400 border-sky-900';
-		return 'bg-neutral-900 text-neutral-400 border-neutral-800';
-	};
-</script>
+		if (r.includes('alimento')) return 'rubro-alimentos';
+		if (r.includes('automotriz')) return 'rubro-automotriz';
+		if (r.includes('textil')) return 'rubro-textil';
+		if (r.includes('construc')) return 'rubro-construccion';
+		if (r.includes('logistica')) return 'rubro-logistica';
+		if (r.includes('comercio')) return 'rubro-comercio';
+		if (r.includes('farmac')) return 'rubro-farma';
+		if (r.includes('quimica')) return 'rubro-quimica';
+		if (r.includes('electrodom')) return 'rubro-electro';
+		return 'rubro-otro';
+	};</script>
 
 <svelte:head>
 	<title>Empresas que cerraron o despidieron en el Conurbano Bonaerense</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link
-		href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
 		rel="stylesheet"
 	/>
 </svelte:head>
@@ -113,27 +110,27 @@
 	<header class="border-b border-neutral-800 bg-[#0d0d0d] px-6 py-7 md:px-10">
 		<div class="flex flex-wrap items-start justify-between gap-6">
 			<div>
-				<span class="mb-1 block font-mono text-[0.62rem] tracking-[0.18em] text-red-500 uppercase">
+				<span class="retro-kicker mb-1 block font-mono text-[0.62rem] tracking-[0.18em] text-red-500 uppercase">
 					Conurbano Bonaerense
 				</span>
 				<h1 class="text-2xl leading-tight font-semibold text-[#f0ebe0] md:text-3xl">
 					Registro de Despidos y Cierres
 				</h1>
-				<p class="mt-1 font-mono text-xs text-neutral-500">
-					Desde noviembre de 2023 · Actualización diaria automática
+				<p class="subtitle mt-1 font-mono text-xs text-neutral-500">
+					Desde noviembre de 2023 Â· ActualizaciÃ³n diaria automÃ¡tica
 				</p>
 			</div>
 
 			<div class="flex shrink-0 items-center gap-6">
 				<div class="text-right">
-					<span class="block font-mono text-2xl leading-none font-semibold text-red-500"
+					<span class="stat-num block font-mono text-2xl leading-none font-semibold text-red-500"
 						>{empresas.length}</span
 					>
 					<span class="text-[0.65rem] tracking-wide text-neutral-500 uppercase">empresas</span>
 				</div>
 				<div class="h-10 w-px bg-neutral-800"></div>
 				<div class="text-right">
-					<span class="block font-mono text-2xl leading-none font-semibold text-red-500"
+					<span class="stat-num block font-mono text-2xl leading-none font-semibold text-red-500"
 						>{totalEmpleados.toLocaleString('es-AR')}</span
 					>
 					<span class="text-[0.65rem] tracking-wide text-neutral-500 uppercase"
@@ -142,7 +139,7 @@
 				</div>
 				<div class="h-10 w-px bg-neutral-800"></div>
 				<div class="text-right">
-					<span class="block font-mono text-2xl leading-none font-semibold text-red-500"
+					<span class="stat-num block font-mono text-2xl leading-none font-semibold text-red-500"
 						>{totalCierres}</span
 					>
 					<span class="text-[0.65rem] tracking-wide text-neutral-500 uppercase"
@@ -186,7 +183,7 @@
 				bind:value={filtroCerro}
 				class="cursor-pointer rounded-sm border border-neutral-700 bg-neutral-900 px-3 py-2 text-xs text-[#e8e4dc] transition-colors outline-none focus:border-red-500"
 			>
-				<option value="">Cierre / Reducción</option>
+				<option value="">Cierre / ReducciÃ³n</option>
 				<option value="Si">Cerro definitivamente</option>
 				<option value="No">Redujo personal</option>
 			</select>
@@ -195,7 +192,7 @@
 					on:click={resetFiltros}
 					class="cursor-pointer rounded-sm border border-neutral-700 bg-transparent px-3 py-2 font-mono text-xs text-neutral-500 transition-colors hover:border-red-500 hover:text-red-500"
 				>
-					✕ Limpiar
+					âœ• Limpiar
 				</button>
 			{/if}
 		</div>
@@ -203,7 +200,7 @@
 		<div class="flex gap-2 font-mono text-xs text-neutral-600">
 			<span>{filtered.length} empresa{filtered.length !== 1 ? 's' : ''}</span>
 			{#if filtered.length !== empresas.length}
-				<span>·</span>
+				<span>Â·</span>
 				<span>{totalFiltradosEmpleados.toLocaleString('es-AR')} empleados afectados</span>
 			{/if}
 		</div>
@@ -254,13 +251,7 @@
 				</thead>
 				<tbody>
 					{#each filtered as e (e.id)}
-						<tr
-							class="border-b border-neutral-900 transition-colors hover:bg-neutral-900/50 {isCerroSi(
-								e.cerro
-							)
-								? 'border-l-2 border-l-red-700'
-								: ''}"
-						>
+						<tr class="retro-row {isCerroSi(e.cerro) ? 'retro-cerro-row' : ''}">
 							<td class="px-4 py-3 font-mono text-xs whitespace-nowrap text-neutral-500"
 								>{e.fecha}</td
 							>
@@ -270,30 +261,28 @@
 							>
 							<td class="px-4 py-3">
 								<span
-									class="inline-block rounded-sm border px-2 py-0.5 font-mono text-[0.65rem] whitespace-nowrap {rubroColor(
-										e.rubro
-									)}"
+									class="retro-badge {rubroColor(e.rubro)}"
 								>
 									{e.rubro}
 								</span>
 							</td>
 							<td class="px-4 py-3 text-right font-mono text-xs text-neutral-300">
-								{e.empleados > 0 ? e.empleados.toLocaleString('es-AR') : '—'}
+								{e.empleados > 0 ? e.empleados.toLocaleString('es-AR') : 'â€”'}
 							</td>
 							<td class="px-4 py-3">
 								{#if isCerroSi(e.cerro)}
 									<span
-										class="inline-block rounded-sm border border-red-900 bg-red-950 px-2 py-0.5 font-mono text-[0.65rem] font-semibold whitespace-nowrap text-red-400"
+										class="retro-badge retro-cerro"
 										>Cerro</span
 									>
 								{:else if e.cerro === 'No'}
 									<span
-										class="inline-block rounded-sm border border-yellow-900 bg-yellow-950 px-2 py-0.5 font-mono text-[0.65rem] font-semibold whitespace-nowrap text-yellow-400"
+										class="retro-badge retro-reduccion"
 										>Redujo personal</span
 									>
 								{:else}
 									<span
-										class="inline-block rounded-sm border border-neutral-800 bg-neutral-900 px-2 py-0.5 font-mono text-[0.65rem] whitespace-nowrap text-neutral-600"
+										class="retro-badge retro-sindato"
 										>Sin dato</span
 									>
 								{/if}
@@ -314,8 +303,182 @@
 	<!-- Footer -->
 	<footer class="border-t border-neutral-900 bg-[#0d0d0d] px-6 py-4">
 		<p class="text-center font-mono text-[0.62rem] text-neutral-700">
-			Datos relevados desde medios de comunicación argentinos · Actualización automática vía GitHub
+			Datos relevados desde medios de comunicaciÃ³n argentinos Â· ActualizaciÃ³n automÃ¡tica vÃ­a GitHub
 			Actions
 		</p>
 	</footer>
 </div>
+
+<style>
+	:global(body) {
+		background: #f2e7cf;
+		color: #1a1a16;
+		font-family: 'Cormorant Garamond', serif;
+	}
+
+	.retro-app {
+		min-height: 100vh;
+		background:
+			linear-gradient(0deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)),
+			repeating-linear-gradient(
+				90deg,
+				rgba(0, 0, 0, 0.03),
+				rgba(0, 0, 0, 0.03) 1px,
+				transparent 1px,
+				transparent 6px
+			),
+			#f2e7cf;
+		padding-bottom: 2.5rem;
+	}
+
+	.retro-app header {
+		background: #f2e7cf;
+		border-bottom: 3px solid #1a1a16;
+		padding: 2.5rem 2rem 1.5rem;
+		position: relative;
+	}
+
+	.retro-app header::after {
+		content: 'BOLETIN INDUSTRIAL';
+		position: absolute;
+		top: 1.2rem;
+		right: 2rem;
+		font-family: 'Space Mono', monospace;
+		letter-spacing: 0.3em;
+		font-size: 0.6rem;
+		color: #1a1a16;
+		border: 2px solid #1a1a16;
+		padding: 0.2rem 0.5rem;
+		transform: rotate(-2deg);
+	}
+
+	.retro-kicker {
+		display: inline-block;
+		background: #1a1a16;
+		color: #f7f1e1 !important;
+		padding: 0.2rem 0.45rem;
+		letter-spacing: 0.2em !important;
+	}
+
+	.retro-app h1 {
+		font-family: 'Archivo Black', sans-serif;
+		color: #1a1a16 !important;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-size: clamp(2rem, 4vw, 3.2rem) !important;
+	}
+
+	.retro-app .subtitle {
+		font-family: 'Space Mono', monospace;
+		color: #3a2f2b !important;
+	}
+
+	.retro-app .stats,
+	.retro-app .retro-stats {
+		display: flex;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+	}
+
+	.retro-app .stat,
+	.retro-app .retro-stat {
+		border: 2px solid #1a1a16;
+		padding: 0.6rem 0.8rem;
+		background: #f7f1e1;
+		box-shadow: 4px 4px 0 #1a1a16;
+	}
+
+	.retro-app .stat-num {
+		font-family: 'Archivo Black', sans-serif !important;
+		color: #c6382f !important;
+	}
+
+	.retro-app .filtros,
+	.retro-app .retro-filters {
+		background: #e9d7b0 !important;
+		border-bottom: 3px solid #1a1a16 !important;
+		padding: 1rem 2rem !important;
+	}
+
+	.retro-app input,
+	.retro-app select {
+		font-family: 'Space Mono', monospace;
+		border: 2px solid #1a1a16 !important;
+		background: #f7f1e1 !important;
+		color: #1a1a16 !important;
+	}
+
+	.retro-app button {
+		font-family: 'Space Mono', monospace;
+		border: 2px solid #1a1a16 !important;
+		background: #1a1a16 !important;
+		color: #f7f1e1 !important;
+	}
+
+	.retro-app table {
+		border: 3px solid #1a1a16;
+		background: #f7f1e1;
+	}
+
+	.retro-app thead th {
+		font-family: 'Space Mono', monospace;
+		background: #1a1a16 !important;
+		color: #f7f1e1 !important;
+		text-transform: uppercase;
+		letter-spacing: 0.15em;
+		border-bottom: 3px solid #1a1a16 !important;
+	}
+
+	.retro-row {
+		border-bottom: 2px solid #1a1a16;
+	}
+
+	.retro-row:nth-child(odd) {
+		background: #f1e2c4;
+	}
+
+	.retro-cerro-row {
+		background: #f4d1c7 !important;
+	}
+
+	.retro-badge {
+		display: inline-block;
+		padding: 0.2rem 0.5rem;
+		border: 2px solid #1a1a16;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		background: #f7f1e1;
+	}
+
+	.retro-cerro {
+		background: #c6382f;
+		color: #f7f1e1;
+	}
+
+	.retro-reduccion {
+		background: #e7b24d;
+		color: #1a1a16;
+	}
+
+	.retro-sindato {
+		background: #e0d6c0;
+		color: #1a1a16;
+	}
+
+	.rubro-alimentos { background: #d7e2b8; }
+	.rubro-automotriz { background: #c3d2e8; }
+	.rubro-textil { background: #e8c3d8; }
+	.rubro-construccion { background: #f1d59a; }
+	.rubro-logistica { background: #f0c3a3; }
+	.rubro-comercio { background: #c2e0da; }
+	.rubro-farma { background: #d4c7f2; }
+	.rubro-quimica { background: #bfe0de; }
+	.rubro-electro { background: #c6d8f2; }
+	.rubro-otro { background: #e1d7c3; }
+</style>
+
+
+
+
