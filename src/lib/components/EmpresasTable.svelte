@@ -8,6 +8,24 @@
 	export let rubroColor;
 	export let ui;
 	export let rowClass;
+
+	const formatMonthYear = (value) => {
+		if (!value) return '';
+		const s = String(value).trim();
+		let date;
+		const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+		if (dmy) {
+			const day = Number(dmy[1]);
+			const month = Number(dmy[2]) - 1;
+			const year = Number(dmy[3]);
+			date = new Date(year, month, day);
+		} else {
+			const parsed = new Date(s);
+			if (!Number.isNaN(parsed.getTime())) date = parsed;
+		}
+		if (!date) return s;
+		return date.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+	};
 </script>
 
 <div class="overflow-x-auto">
@@ -35,7 +53,7 @@
 		<tbody>
 			{#each rows as e (e.id)}
 				<tr class={rowClass(isCerroSi(e.cerro))}>
-					<td class={ui.cellMono}>{e.fecha}</td>
+					<td class={ui.cellMono}>{formatMonthYear(e.fecha)}</td>
 					<td class={ui.cellCompany}>{e.empresa}</td>
 					<td class={`hidden md:table-cell ${ui.cellMono}`}>{e.municipio}</td>
 					<td class="px-4 py-3">
