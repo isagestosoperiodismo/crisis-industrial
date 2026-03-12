@@ -1,6 +1,7 @@
 ﻿<script context="module">
 	export const csr = true;
 </script>
+
 <script>
 	import EmpresasTable from '$lib/components/EmpresasTable.svelte';
 
@@ -17,31 +18,30 @@
 
 	const ui = {
 		input:
-			"min-w-[200px] rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]",
+			'min-w-[200px] rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		select:
-			"cursor-pointer rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]",
+			'cursor-pointer rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		button:
-			"cursor-pointer rounded-none border-2 border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#f7f1e1] hover:bg-[#333]",
-		th:
-			"cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none",
+			'cursor-pointer rounded-none border-2 border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#f7f1e1] hover:bg-[#333]',
+		th: 'cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
 		thRight:
-			"cursor-pointer px-4 py-3 text-right font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none",
+			'cursor-pointer px-4 py-3 text-right font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
 		thHidden:
-			"hidden cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none md:table-cell",
+			'hidden cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none md:table-cell',
 		thStatic:
-			"px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase",
-		cellMono: "px-4 py-3 font-[Space_Mono] text-xs whitespace-nowrap text-[#3a2f2b]",
-		cellCompany: "px-4 py-3 font-[Space_Mono] font-bold text-[#1a1a16]",
-		cellRight: "px-4 py-3 text-right font-[Space_Mono] text-xs text-[#1a1a16]",
+			'px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase',
+		cellMono: 'px-4 py-3 font-[Space_Mono] text-xs whitespace-nowrap text-[#3a2f2b]',
+		cellCompany: 'px-4 py-3 font-[Space_Mono] font-bold text-[#1a1a16]',
+		cellRight: 'px-4 py-3 text-right font-[Space_Mono] text-xs text-[#1a1a16]',
 		badgeBase:
-			"inline-block rounded-none border-2 border-[#1a1a16] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em]",
+			'inline-block rounded-none border-2 border-[#1a1a16] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em]',
 		badgeCerro:
-			"inline-block rounded-none border-2 border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]",
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]',
 		badgeReduccion:
-			"inline-block rounded-none border-2 border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]",
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
 		badgeSinDato:
-			"inline-block rounded-none border-2 border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]",
-		empty: "text-center py-16 font-[Space_Mono] text-xs text-[#3a2f2b]"
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
+		empty: 'text-center py-16 font-[Space_Mono] text-xs text-[#3a2f2b]'
 	};
 
 	const rowClass = (cerro) =>
@@ -159,18 +159,28 @@
 	<header class="relative px-6 py-8 md:px-10">
 		<div class="flex flex-wrap items-start justify-between gap-6">
 			<div>
-				<span
-					class="inline-block bg-[#1a1a16] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] tracking-[0.3em] text-[#f7f1e1] uppercase"
-				>
-					Conurbano Bonaerense
-				</span>
 				<h1
 					class="font-[Archivo_Black] text-3xl tracking-[0.05em] text-[#1a1a16] uppercase md:text-4xl"
 				>
-					Registro de Despidos y Cierres
+					Registro de despidos y cierres en fábricas del Conurbano Bonaerense
 				</h1>
 				<p class="mt-1 font-[Space_Mono] text-xs text-[#3a2f2b]">
-					Desde noviembre de 2023 · Actualización diaria automática
+					Desde noviembre de 2023 · Última actualización: {new Date(
+						data.lastUpdated
+					).toLocaleDateString('es-AR', {
+						day: '2-digit',
+						month: '2-digit',
+						year: 'numeric'
+					})}
+				</p>
+				<p>
+					Los datos obtenidos corresponden a un relevamiento diario que en diversos meidos de
+					comunicación tanto locales como nacionales. Al no existir un registro oficial puede ser
+					que haya errore u omisiones, Para cualquier consulta, corrección o aporte pueden llenar el
+					este <a
+						href="https://docs.google.com/forms/d/e/1FAIpQLSd9un2YDnEq5ZEPSRTPgFmQK2trRr2OxyaoRZAccAX6O6i7NQ/viewform?usp=publish-editor"
+						>forms.</a
+					>
 				</p>
 			</div>
 
@@ -214,39 +224,25 @@
 				bind:value={filtroTexto}
 				class={ui.input}
 			/>
-			<select
-				bind:value={filtroMunicipio}
-				class={ui.select}
-			>
+			<select bind:value={filtroMunicipio} class={ui.select}>
 				<option value="">Todos los municipios</option>
 				{#each municipiosLista as m (m)}
 					<option value={m}>{m}</option>
 				{/each}
 			</select>
-			<select
-				bind:value={filtroRubro}
-				class={ui.select}
-			>
+			<select bind:value={filtroRubro} class={ui.select}>
 				<option value="">Todos los rubros</option>
 				{#each rubrosUnicos as r (r)}
 					<option value={r}>{r}</option>
 				{/each}
 			</select>
-			<select
-				bind:value={filtroCerro}
-				class={ui.select}
-			>
+			<select bind:value={filtroCerro} class={ui.select}>
 				<option value="">Cierre / Reducción</option>
 				<option value="Si">Cerró</option>
 				<option value="No">Redujo personal</option>
 			</select>
 			{#if filtroMunicipio || filtroRubro || filtroCerro || filtroTexto}
-				<button
-					on:click={resetFiltros}
-					class={ui.button}
-				>
-					✕ Limpiar
-				</button>
+				<button on:click={resetFiltros} class={ui.button}> ✕ Limpiar </button>
 			{/if}
 		</div>
 
@@ -263,23 +259,19 @@
 	<main class="flex-1 overflow-hidden">
 		<EmpresasTable
 			rows={filtered}
-			ordenCol={ordenCol}
-			ordenDir={ordenDir}
+			{ordenCol}
+			{ordenDir}
 			onToggleOrden={toggleOrden}
-			flechas={flechas}
-			isCerroSi={isCerroSi}
-			rubroColor={rubroColor}
-			ui={ui}
-			rowClass={rowClass}
+			{flechas}
+			{isCerroSi}
+			{rubroColor}
+			{ui}
+			{rowClass}
 		/>
 	</main>
 
 	<!-- Footer -->
 	<footer class="border-t-[3px] border-[#1a1a16] bg-white px-6 py-4">
-		<p class="text-center font-[Space_Mono] text-[0.62rem] text-[#3a2f2b]">
-			Datos relevados desde medios de comunicación argentinos · Actualización automática vía GitHub
-			Actions
-		</p>
+		<p class="text-center font-[Space_Mono] text-[0.62rem] text-[#3a2f2b]"></p>
 	</footer>
 </div>
-
