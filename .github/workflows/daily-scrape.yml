@@ -1,4 +1,4 @@
-﻿name: Scraper diario - despidos conurbano
+name: Scraper diario - despidos conurbano
 
 on:
   schedule:
