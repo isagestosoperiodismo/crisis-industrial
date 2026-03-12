@@ -72,7 +72,7 @@ function isCerroSi(value) {
 }
 
 const CSV_PATH = path.resolve("data/empresas.csv");
-const HAS_SHEETS = Boolean(process.env.GOOGLE_CREDENTIALS && process.env.SHEET_ID);
+const HAS_SHEETS = Boolean(process.env.SHEET_ID && (process.env.GOOGLE_CREDENTIALS || fs.existsSync(path.resolve('credentials.json')) || process.env.GOOGLE_CREDENTIALS_PATH));
 
 const columnKeyMap = {
 	[normalizeKey("fecha")]: "fecha",
@@ -105,8 +105,8 @@ function mapRowsToEmpresas(raw) {
 }
 
 async function readFromSheets() {
-	const credsRaw = process.env.GOOGLE_CREDENTIALS;
-	const sheetId = process.env.SHEET_ID;
+	let credsRaw = process.env.GOOGLE_CREDENTIALS;
+	const sheetId = process.env.SHEET_ID;\n\tconst localCredsPath = process.env.GOOGLE_CREDENTIALS_PATH || path.resolve('credentials.json');\n\tif (!credsRaw && fs.existsSync(localCredsPath)) {\n\t\tcredsRaw = fs.readFileSync(localCredsPath, 'utf-8');\n\t}
 	if (!credsRaw || !sheetId) return [];
 
 	const creds = JSON.parse(credsRaw);
@@ -162,3 +162,5 @@ export async function load() {
 
 	return { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos };
 }
+
+
