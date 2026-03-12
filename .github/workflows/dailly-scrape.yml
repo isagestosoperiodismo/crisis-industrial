@@ -26,4 +26,4 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
-        run: node scraper/scraper.mjs
+        run: node scraper/scraper.js

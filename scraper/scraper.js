@@ -1,21 +1,23 @@
 ﻿#!/usr/bin/env node
 
 /**
- * Scraper de despidos y cierres — Conurbano bonaerense
+ * Scraper de despidos y cierres - Conurbano bonaerense
  * Desde: 01/11/2023
  *
  * Lee:    Google Sheet → pestaña "empresas"       (eventos ya confirmados)
  * Escribe: Google Sheet → pestaña "por_verificar" (noticias nuevas para revisar)
  *
- * Variables de entorno requeridas:
- *   GOOGLE_CREDENTIALS  → contenido del JSON de la Service Account
- *   SHEET_ID            → ID del Google Sheet
+ * Variables de entorno (opcional):
+ *   GOOGLE_CREDENTIALS  -> contenido del JSON de la Service Account
+ *   SHEET_ID            -> ID del Google Sheet
  *
  * Uso local:
- *   GOOGLE_CREDENTIALS=$(cat credentials.json) SHEET_ID=xxx node scraper.mjs
- *   node scraper.mjs --debug
+ *   GOOGLE_CREDENTIALS=$(cat credentials.json) SHEET_ID=xxx node scraper.js
+ *   node scraper.js --debug
  */
 
+import fs from 'fs';
+import path from 'path';
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
 
@@ -26,6 +28,10 @@ const dbg = (...args) => DEBUG && console.log('  [DBG]', ...args);
 const START_DATE = '01/11/2023';
 const SLEEP_MS = 1400;
 const SHEET_ID = process.env.SHEET_ID;
+const HAS_SHEETS = Boolean(process.env.GOOGLE_CREDENTIALS && SHEET_ID);
+const DATA_DIR = path.resolve('data');
+const CSV_EMPRESAS = path.join(DATA_DIR, 'empresas.csv');
+const CSV_POR_VERIFICAR = path.join(DATA_DIR, 'por_verificar.csv');
 
 const SHEET_EMPRESAS = 'empresas';
 const SHEET_POR_VERIFICAR = 'por_verificar';
@@ -144,6 +150,92 @@ async function getSheetsClient() {
 		]
 	});
 	return google.sheets({ version: 'v4', auth });
+}
+
+// ── CSV local helpers ──────────────────────────────────────────────────────
+function parseCSV(content) {
+	const text = content.replace(/\uFEFF/g, '').trim();
+	if (!text) return [];
+
+	const rows = [];
+	let row = [];
+	let field = '';
+	let inQuotes = false;
+
+	for (let i = 0; i < text.length; i++) {
+		const ch = text[i];
+		const next = text[i + 1];
+
+		if (ch === '"') {
+			if (inQuotes && next === '"') {
+				field += '"';
+				i++;
+			} else {
+				inQuotes = !inQuotes;
+			}
+			continue;
+		}
+
+		if (ch === ',' && !inQuotes) {
+			row.push(field);
+			field = '';
+			continue;
+		}
+
+		if ((ch === '\n' || ch === '\r') && !inQuotes) {
+			if (ch === '\r' && next === '\n') i++;
+			row.push(field);
+			field = '';
+			if (row.some((v) => v !== '')) rows.push(row);
+			row = [];
+			continue;
+		}
+
+		field += ch;
+	}
+
+	row.push(field);
+	if (row.some((v) => v !== '')) rows.push(row);
+
+	if (!rows.length) return [];
+	const headers = rows.shift().map((h) => h.trim());
+	return rows.map((r) => {
+		const obj = {};
+		for (let i = 0; i < headers.length; i++) obj[headers[i]] = r[i] ?? '';
+		return obj;
+	});
+}
+
+function csvEscape(value) {
+	const s = value == null ? '' : String(value);
+	if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+	return s;
+}
+
+function stringifyCSV(records, columns) {
+	const header = columns.map(csvEscape).join(',');
+	const lines = records.map((r) => columns.map((c) => csvEscape(r[c])).join(','));
+	return [header, ...lines].join('\n') + '\n';
+}
+
+function ensureCsvHeaders(filePath, columns) {
+	if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+	if (!fs.existsSync(filePath) || fs.readFileSync(filePath, 'utf-8').trim().length === 0) {
+		fs.writeFileSync(filePath, stringifyCSV([], columns), 'utf-8');
+	}
+}
+
+function readCsvFile(filePath) {
+	if (!fs.existsSync(filePath)) return [];
+	const content = fs.readFileSync(filePath, 'utf-8');
+	return parseCSV(content);
+}
+
+function appendCsvRows(filePath, columns, rows) {
+	if (rows.length === 0) return;
+	const existing = readCsvFile(filePath);
+	const merged = existing.concat(rows);
+	fs.writeFileSync(filePath, stringifyCSV(merged, columns), 'utf-8');
 }
 
 // ── Leer sheet ─────────────────────────────────────────────────────────────
@@ -345,22 +437,36 @@ function eventKey(municipio, fecha, empresa = '') {
 // ── MAIN ───────────────────────────────────────────────────────────────────
 async function main() {
 	console.log('══════════════════════════════════════');
-	console.log('  SCRAPER DESPIDOS — CONURBANO');
+	console.log('  SCRAPER DESPIDOS - CONURBANO');
 	if (DEBUG) console.log('  (modo --debug activo)');
 	console.log('══════════════════════════════════════\n');
 
-	// ── Conectar a Sheets ──────────────────────────────────────────────────
-	console.log('🔗 Conectando a Google Sheets...');
-	const sheets = await getSheetsClient();
+	// ── Conectar a Sheets o modo CSV ───────────────────────────────────────
+	let sheets = null;
+	let verificados = [];
+	let porVerificar = [];
 
-	// Asegurar headers si las pestañas están vacías
-	await ensureHeaders(sheets, SHEET_EMPRESAS, COLS_EMPRESAS);
-	await ensureHeaders(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR);
+	if (HAS_SHEETS) {
+		console.log('🔗 Conectando a Google Sheets...');
+		sheets = await getSheetsClient();
 
-	// ── Leer datos existentes ──────────────────────────────────────────────
-	console.log('📖 Leyendo datos existentes...');
-	const verificados = await readSheet(sheets, SHEET_EMPRESAS);
-	const porVerificar = await readSheet(sheets, SHEET_POR_VERIFICAR);
+		// Asegurar headers si las pestañas están vacías
+		await ensureHeaders(sheets, SHEET_EMPRESAS, COLS_EMPRESAS);
+		await ensureHeaders(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR);
+
+		// ── Leer datos existentes ──────────────────────────────────────────────
+		console.log('📖 Leyendo datos existentes (Sheets)...');
+		verificados = await readSheet(sheets, SHEET_EMPRESAS);
+		porVerificar = await readSheet(sheets, SHEET_POR_VERIFICAR);
+	} else {
+		console.log('ℹ Sin GOOGLE_CREDENTIALS/SHEET_ID. Modo local CSV.');
+		ensureCsvHeaders(CSV_EMPRESAS, COLS_EMPRESAS);
+		ensureCsvHeaders(CSV_POR_VERIFICAR, COLS_POR_VERIFICAR);
+
+		console.log('📖 Leyendo datos existentes (CSV)...');
+		verificados = readCsvFile(CSV_EMPRESAS);
+		porVerificar = readCsvFile(CSV_POR_VERIFICAR);
+	}
 
 	console.log(`   empresas:      ${verificados.length} filas`);
 	console.log(`   por_verificar: ${porVerificar.length} filas`);
@@ -481,9 +587,15 @@ async function main() {
 
 	// ── Escribir en Sheets ─────────────────────────────────────────────────
 	if (nuevasFilas.length > 0) {
-		console.log(`\n💾 Escribiendo ${nuevasFilas.length} filas nuevas en Sheets...`);
-		await appendRows(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR, nuevasFilas);
-		console.log('   ✅ Listo');
+		if (HAS_SHEETS) {
+			console.log(`\n💾 Escribiendo ${nuevasFilas.length} filas nuevas en Sheets...`);
+			await appendRows(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR, nuevasFilas);
+			console.log('   ✅ Listo');
+		} else {
+			console.log(`\n💾 Escribiendo ${nuevasFilas.length} filas nuevas en CSV...`);
+			appendCsvRows(CSV_POR_VERIFICAR, COLS_POR_VERIFICAR, nuevasFilas);
+			console.log('   ✅ Listo');
+		}
 	}
 
 	// ── Resumen ────────────────────────────────────────────────────────────

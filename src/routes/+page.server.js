@@ -1,5 +1,5 @@
-﻿import fs from "fs";
-import path from "path";
+﻿import fs from "node:fs";
+import path from "node:path";
 
 function parseCSV(content) {
 	const text = content.replace(/\uFEFF/g, "").trim();
@@ -107,3 +107,4 @@ export function load() {
 
 	return { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos };
 }
+
