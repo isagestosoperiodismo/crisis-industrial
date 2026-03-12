@@ -6,7 +6,7 @@
 
 	export let data;
 
-	const { empresas, totalEmpleados, totalCierres, municipiosUnicos, rubrosUnicos } = data;
+	const { empresas, totalEmpleados, totalCierres, rubrosUnicos } = data;
 
 	let filtroMunicipio = '';
 	let filtroRubro = '';
@@ -87,7 +87,7 @@
 		return 0;
 	};
 
-	$: municipiosLista = [
+	const municipiosLista = [
 		...new Set(empresas.map((e) => (e.municipio || '').trim()).filter(Boolean))
 	].sort();
 
