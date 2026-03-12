@@ -4,8 +4,6 @@
 
 <script>
 	import EmpresasTable from '$lib/components/EmpresasTable.svelte';
-	import { assets } from '$app/paths';
-
 	export let data;
 
 	const { empresas, totalEmpleados, totalCierres, rubrosUnicos, lastUpdated } = data;
@@ -148,7 +146,6 @@
 
 <svelte:head>
 	<title>Empresas que cerraron o despidieron en el Conurbano Bonaerense</title>
-	<link rel="icon" href={`${assets}/favicon.ico`} />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
