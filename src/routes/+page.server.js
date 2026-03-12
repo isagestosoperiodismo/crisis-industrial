@@ -106,7 +106,12 @@ function mapRowsToEmpresas(raw) {
 
 async function readFromSheets() {
 	let credsRaw = process.env.GOOGLE_CREDENTIALS;
-	const sheetId = process.env.SHEET_ID;\n\tconst localCredsPath = process.env.GOOGLE_CREDENTIALS_PATH || path.resolve('credentials.json');\n\tif (!credsRaw && fs.existsSync(localCredsPath)) {\n\t\tcredsRaw = fs.readFileSync(localCredsPath, 'utf-8');\n\t}
+	const sheetId = process.env.SHEET_ID;
+	const localCredsPath =
+		process.env.GOOGLE_CREDENTIALS_PATH || path.resolve("credentials.json");
+	if (!credsRaw && fs.existsSync(localCredsPath)) {
+		credsRaw = fs.readFileSync(localCredsPath, "utf-8");
+	}
 	if (!credsRaw || !sheetId) return [];
 
 	const creds = JSON.parse(credsRaw);
