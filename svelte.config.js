@@ -7,7 +7,13 @@ const config = {
 	kit: {
 		adapter: adapter({ pages: 'build', assets: 'build', fallback: 'index.html' }),
 		paths: { base },
-		prerender: { entries: ['*'] }
+		prerender: {
+			entries: ['*'],
+			handleHttpError: ({ status, path, referrer }) => {
+				if (status === 404 && path.endsWith('/favicon.ico')) return;
+				throw new Error(`${status} ${path} (linked from ${referrer})`);
+			}
+		}
 	}
 };
 
