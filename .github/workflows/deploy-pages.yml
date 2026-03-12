@@ -24,6 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Export empresas from Sheets
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+        run: node scraper/export-empresas.js
+
       - name: Build
         env:
           BASE_PATH: "/crisis-industrial"
