@@ -54,18 +54,18 @@
 			.toLowerCase()
 			.trim();
 
-	const matchesFilters = (e) => {
-		if (filtroMunicipio && e.municipio !== filtroMunicipio) return false;
-		if (filtroRubro && e.rubro !== filtroRubro) return false;
-		if (filtroCerro) {
-			if (filtroCerro === 'Si') {
+	const matchesFilters = (e, municipio, rubro, cerro, texto) => {
+		if (municipio && e.municipio !== municipio) return false;
+		if (rubro && e.rubro !== rubro) return false;
+		if (cerro) {
+			if (cerro === 'Si') {
 				if (!isCerroSi(e.cerro)) return false;
-			} else if (e.cerro !== filtroCerro) {
+			} else if (e.cerro !== cerro) {
 				return false;
 			}
 		}
-		if (filtroTexto) {
-			const q = normalizeClient(filtroTexto);
+		if (texto) {
+			const q = normalizeClient(texto);
 			if (!q) return true;
 			if (!normalizeClient(e.empresa).includes(q) && !normalizeClient(e.municipio).includes(q))
 				return false;
@@ -79,11 +79,11 @@
 		return row[col];
 	};
 
-	const compareRows = (a, b) => {
-		const va = sortableValue(a, ordenCol);
-		const vb = sortableValue(b, ordenCol);
-		if (va < vb) return ordenDir === 'asc' ? -1 : 1;
-		if (va > vb) return ordenDir === 'asc' ? 1 : -1;
+	const compareRows = (a, b, col, dir) => {
+		const va = sortableValue(a, col);
+		const vb = sortableValue(b, col);
+		if (va < vb) return dir === 'asc' ? -1 : 1;
+		if (va > vb) return dir === 'asc' ? 1 : -1;
 		return 0;
 	};
 
@@ -91,7 +91,9 @@
 		...new Set(empresas.map((e) => (e.municipio || '').trim()).filter(Boolean))
 	].sort();
 
-	$: filtered = empresas.filter(matchesFilters).sort(compareRows);
+	$: filtered = empresas
+		.filter((e) => matchesFilters(e, filtroMunicipio, filtroRubro, filtroCerro, filtroTexto))
+		.sort((a, b) => compareRows(a, b, ordenCol, ordenDir));
 
 	$: totalFiltradosEmpleados = filtered.reduce((s, e) => s + e.empleados, 0);
 
@@ -280,13 +282,4 @@
 		</p>
 	</footer>
 </div>
-
-
-
-
-
-
-
-
-
 
