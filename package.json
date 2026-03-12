@@ -9,7 +9,9 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"start": "node scraper/scraper.mjs",
+		"debug": "node scraper/scraper.mjs --debug"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
@@ -28,6 +30,8 @@
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"svelte": "^5.51.0",
 		"tailwindcss": "^4.1.18",
-		"vite": "^7.3.1"
+		"vite": "^7.3.1",
+		"google-auth-library": "^9.0.0",
+		"googleapis": "^140.0.0"
 	}
 }

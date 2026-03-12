@@ -4,35 +4,46 @@
  * Scraper de despidos y cierres — Conurbano bonaerense
  * Desde: 01/11/2023
  *
- * Genera:
- *   data/por_verificar.csv  → noticias para revisar y completar manualmente
+ * Lee:    Google Sheet → pestaña "empresas"       (eventos ya confirmados)
+ * Escribe: Google Sheet → pestaña "por_verificar" (noticias nuevas para revisar)
  *
- * No toca data/empresas.csv (solo lo lee para no duplicar eventos ya confirmados)
+ * Variables de entorno requeridas:
+ *   GOOGLE_CREDENTIALS  → contenido del JSON de la Service Account
+ *   SHEET_ID            → ID del Google Sheet
  *
- * Uso:
- *   node scraper.mjs           → modo normal
- *   node scraper.mjs --debug   → muestra por qué se descarta cada artículo
+ * Uso local:
+ *   GOOGLE_CREDENTIALS=$(cat credentials.json) SHEET_ID=xxx node scraper.mjs
+ *   node scraper.mjs --debug
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { GoogleAuth } from 'google-auth-library';
+import { google } from 'googleapis';
 
 const DEBUG = process.argv.includes('--debug');
-
-// ── Paths ──────────────────────────────────────────────────────────────────
-const DATA_DIR = path.resolve(__dirname, '../data');
-const CSV_VERIFICADO = path.join(DATA_DIR, 'empresas.csv');
-const CSV_POR_VERIFICAR = path.join(DATA_DIR, 'por_verificar.csv');
+const dbg = (...args) => DEBUG && console.log('  [DBG]', ...args);
 
 // ── Config ─────────────────────────────────────────────────────────────────
 const START_DATE = '01/11/2023';
 const SLEEP_MS = 1400;
+const SHEET_ID = process.env.SHEET_ID;
 
-// ── Columnas del por_verificar ─────────────────────────────────────────────
-const COLS = [
+const SHEET_EMPRESAS = 'empresas';
+const SHEET_POR_VERIFICAR = 'por_verificar';
+
+const COLS_EMPRESAS = [
+	'fecha',
+	'empresa',
+	'rubro',
+	'despedidos',
+	'provincia',
+	'municipio',
+	'cerro_empresa',
+	'medio',
+	'titulo',
+	'url'
+];
+
+const COLS_POR_VERIFICAR = [
 	'fecha',
 	'municipio',
 	'titulo',
@@ -44,7 +55,7 @@ const COLS = [
 	'cerro_empresa'
 ];
 
-// ── Municipios del Conurbano ───────────────────────────────────────────────
+// ── Municipios ─────────────────────────────────────────────────────────────
 const MUNICIPIOS = [
 	'AVELLANEDA',
 	'LANUS',
@@ -113,17 +124,77 @@ const FEEDS = [
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const dbg = (...args) => DEBUG && console.log('  [DBG]', ...args);
 
 function normalize(text) {
 	return (text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function esc(val) {
-	const s = String(val || '')
-		.replace(/\r?\n|\r/g, ' ')
-		.trim();
-	return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+// ── Google Sheets auth ─────────────────────────────────────────────────────
+async function getSheetsClient() {
+	const credsRaw = process.env.GOOGLE_CREDENTIALS;
+	if (!credsRaw) throw new Error('Falta variable de entorno GOOGLE_CREDENTIALS');
+	if (!SHEET_ID) throw new Error('Falta variable de entorno SHEET_ID');
+
+	const creds = JSON.parse(credsRaw);
+	const auth = new GoogleAuth({
+		credentials: creds,
+		scopes: [
+			'https://www.googleapis.com/auth/spreadsheets',
+			'https://www.googleapis.com/auth/drive'
+		]
+	});
+	return google.sheets({ version: 'v4', auth });
+}
+
+// ── Leer sheet ─────────────────────────────────────────────────────────────
+async function readSheet(sheets, sheetName) {
+	const res = await sheets.spreadsheets.values.get({
+		spreadsheetId: SHEET_ID,
+		range: `${sheetName}!A:Z`
+	});
+
+	const rows = res.data.values || [];
+	if (rows.length < 2) return []; // solo header o vacío
+
+	const headers = rows[0].map((h) => h.trim());
+	return rows.slice(1).map((row) => {
+		const obj = {};
+		headers.forEach((h, i) => (obj[h] = row[i] || ''));
+		return obj;
+	});
+}
+
+// ── Agregar filas al final del sheet ──────────────────────────────────────
+async function appendRows(sheets, sheetName, cols, rows) {
+	if (rows.length === 0) return;
+
+	const values = rows.map((r) => cols.map((c) => r[c] || ''));
+
+	await sheets.spreadsheets.values.append({
+		spreadsheetId: SHEET_ID,
+		range: `${sheetName}!A:A`,
+		valueInputOption: 'USER_ENTERED',
+		insertDataOption: 'INSERT_ROWS',
+		requestBody: { values }
+	});
+}
+
+// ── Asegurar que el sheet tenga headers si está vacío ─────────────────────
+async function ensureHeaders(sheets, sheetName, cols) {
+	const res = await sheets.spreadsheets.values.get({
+		spreadsheetId: SHEET_ID,
+		range: `${sheetName}!A1:Z1`
+	});
+	const firstRow = res.data.values?.[0] || [];
+	if (firstRow.length === 0) {
+		await sheets.spreadsheets.values.update({
+			spreadsheetId: SHEET_ID,
+			range: `${sheetName}!A1`,
+			valueInputOption: 'RAW',
+			requestBody: { values: [cols] }
+		});
+		console.log(`  Headers creados en pestaña "${sheetName}"`);
+	}
 }
 
 // ── Fechas ─────────────────────────────────────────────────────────────────
@@ -166,14 +237,13 @@ function dateKey(d) {
 	return m ? `${m[3]}${m[2]}${m[1]}` : '00000000';
 }
 
-// ── Detección de municipio ─────────────────────────────────────────────────
+// ── Detección ──────────────────────────────────────────────────────────────
 function detectMunicipio(text) {
 	const t = normalize(text).toUpperCase();
 	const sorted = [...MUNICIPIOS].sort((a, b) => b.length - a.length);
 	return sorted.find((m) => t.includes(m)) || '';
 }
 
-// ── Relevancia ─────────────────────────────────────────────────────────────
 function isRelevant(title, snippet) {
 	const t = normalize((title || '') + ' ' + (snippet || '')).toLowerCase();
 	const geo =
@@ -187,30 +257,20 @@ function isRelevant(title, snippet) {
 	return geo && laboral;
 }
 
-// ── RSS parser ─────────────────────────────────────────────────────────────
-// Google News usa <link> de forma no estándar en RSS 2.0:
-// el tag está vacío o el contenido real está en <guid isPermaLink="true">
-// o inmediatamente después del tag de cierre </title> como texto suelto.
-// La estrategia más robusta: intentar múltiples formas de extraer la URL.
+// ── RSS ────────────────────────────────────────────────────────────────────
 function extractURL(block) {
-	// 1) <link>https://...</link>  — formato estándar
 	let m = block.match(/<link[^>]*>([^<]+)<\/link>/);
 	if (m && m[1].trim().startsWith('http')) return m[1].trim();
 
-	// 2) <link>  seguido de texto antes del próximo tag — Google News RSS a veces
-	//    pone la URL entre <link> y el próximo tag sin cerrar correctamente
 	m = block.match(/<link[^/]*\/?>[\s\n]*(https?:\/\/[^\s<]+)/);
 	if (m) return m[1].trim();
 
-	// 3) <guid isPermaLink="true">https://...</guid>
 	m = block.match(/<guid[^>]*isPermaLink="true"[^>]*>([^<]+)<\/guid>/);
 	if (m && m[1].trim().startsWith('http')) return m[1].trim();
 
-	// 4) <guid>https://...</guid>  sin atributo
 	m = block.match(/<guid[^>]*>([^<]+)<\/guid>/);
 	if (m && m[1].trim().startsWith('http')) return m[1].trim();
 
-	// 5) Cualquier URL https:// en el bloque (último recurso)
 	m = block.match(/https?:\/\/[^\s<"]+/);
 	if (m) return m[0].trim();
 
@@ -223,7 +283,6 @@ function parseRSS(xml) {
 	let m;
 	while ((m = rx.exec(xml))) {
 		const block = m[1];
-
 		const getTag = (tag) => {
 			const r = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`));
 			return r
@@ -233,13 +292,12 @@ function parseRSS(xml) {
 						.trim()
 				: '';
 		};
-
-		const url = extractURL(block);
-		const title = getTag('title');
-		const date = getTag('pubDate');
-		const snippet = getTag('description');
-
-		items.push({ title, url, date, snippet });
+		items.push({
+			title: getTag('title'),
+			url: extractURL(block),
+			date: getTag('pubDate'),
+			snippet: getTag('description')
+		});
 	}
 	return items;
 }
@@ -258,14 +316,7 @@ async function googleNews(keyword) {
 	try {
 		const xml = await fetchText(url);
 		const items = parseRSS(xml);
-
-		if (DEBUG && items.length > 0) {
-			dbg(`"${keyword}" → ${items.length} items`);
-			dbg(`  url[0]:   ${items[0].url?.slice(0, 80)}`);
-			dbg(`  title[0]: ${items[0].title?.slice(0, 60)}`);
-			dbg(`  date[0]:  ${items[0].date}`);
-		}
-
+		dbg(`"${keyword}" → ${items.length} items, url[0]: ${items[0]?.url?.slice(0, 60)}`);
 		return items.map((i) => ({ ...i, medio: 'Google News' }));
 	} catch (e) {
 		console.warn(`  ⚠ Google News [${keyword}]:`, e.message);
@@ -283,42 +334,7 @@ async function fetchFeed({ url, medio }) {
 	}
 }
 
-// ── CSV I/O ────────────────────────────────────────────────────────────────
-function loadCSV(filepath) {
-	if (!fs.existsSync(filepath)) return [];
-	const text = fs.readFileSync(filepath, 'utf8').trim();
-	if (!text) return [];
-	const lines = text.split('\n');
-	const headers = lines
-		.shift()
-		.split(',')
-		.map((h) => h.trim());
-	return lines
-		.filter((l) => l.trim())
-		.map((l) => {
-			const parts = [];
-			let cur = '',
-				inQ = false;
-			for (const c of l) {
-				if (c === '"') inQ = !inQ;
-				else if (c === ',' && !inQ) {
-					parts.push(cur.trim());
-					cur = '';
-				} else cur += c;
-			}
-			parts.push(cur.trim());
-			const obj = {};
-			headers.forEach((h, i) => (obj[h] = (parts[i] || '').replace(/^"|"$/g, '')));
-			return obj;
-		});
-}
-
-function saveCSV(filepath, rows) {
-	if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-	const lines = rows.map((r) => COLS.map((c) => esc(r[c] || '')).join(','));
-	fs.writeFileSync(filepath, [COLS.join(','), ...lines].join('\n'), 'utf8');
-}
-
+// ── Clave de evento para deduplicar ───────────────────────────────────────
 function eventKey(municipio, fecha, empresa = '') {
 	const mes = dateKey(fecha).slice(0, 6);
 	const mun = normalize(municipio).toLowerCase();
@@ -333,28 +349,44 @@ async function main() {
 	if (DEBUG) console.log('  (modo --debug activo)');
 	console.log('══════════════════════════════════════\n');
 
-	const verificados = loadCSV(CSV_VERIFICADO);
-	const porVerificar = loadCSV(CSV_POR_VERIFICAR);
+	// ── Conectar a Sheets ──────────────────────────────────────────────────
+	console.log('🔗 Conectando a Google Sheets...');
+	const sheets = await getSheetsClient();
 
+	// Asegurar headers si las pestañas están vacías
+	await ensureHeaders(sheets, SHEET_EMPRESAS, COLS_EMPRESAS);
+	await ensureHeaders(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR);
+
+	// ── Leer datos existentes ──────────────────────────────────────────────
+	console.log('📖 Leyendo datos existentes...');
+	const verificados = await readSheet(sheets, SHEET_EMPRESAS);
+	const porVerificar = await readSheet(sheets, SHEET_POR_VERIFICAR);
+
+	console.log(`   empresas:      ${verificados.length} filas`);
+	console.log(`   por_verificar: ${porVerificar.length} filas`);
+
+	// URLs ya vistas en cualquiera de las dos pestañas
 	const urlSet = new Set([
 		...verificados.map((r) => r.url).filter(Boolean),
 		...porVerificar.map((r) => r.url).filter(Boolean)
 	]);
 
+	// Eventos ya confirmados
 	const eventosConfirmados = new Set(
 		verificados
 			.filter((r) => r.municipio && r.fecha)
 			.map((r) => eventKey(r.municipio, r.fecha, r.empresa))
 	);
 
+	// Eventos ya pendientes
 	const eventosPendientes = new Set(
 		porVerificar.filter((r) => r.municipio && r.fecha).map((r) => eventKey(r.municipio, r.fecha))
 	);
 
-	// ── Recolectar ────────────────────────────────────────────────────────
+	// ── Recolectar artículos ───────────────────────────────────────────────
 	let articles = [];
 
-	console.log('🔍 Google News...');
+	console.log('\n🔍 Google News...');
 	for (const kw of KEYWORDS) {
 		for (const year of YEARS) {
 			const q = `${kw} ${year}`;
@@ -374,11 +406,10 @@ async function main() {
 		articles.push(...res);
 	}
 
-	// ── Deduplicar por URL ────────────────────────────────────────────────
+	// Deduplicar por URL dentro del batch
 	const batchUrls = new Set();
 	let sinUrl = 0;
-	const beforeDedup = articles.length;
-
+	const total = articles.length;
 	articles = articles.filter((a) => {
 		if (!a.url) {
 			sinUrl++;
@@ -389,67 +420,48 @@ async function main() {
 		return true;
 	});
 
-	console.log(
-		`\n📰 Artículos: ${beforeDedup} totales → ${articles.length} únicos (${sinUrl} sin URL descartados)`
-	);
+	console.log(`\n📰 Artículos: ${total} totales → ${articles.length} únicos (${sinUrl} sin URL)`);
 
 	if (articles.length === 0) {
-		console.log('\n⚠ No se pudo recolectar artículos. Verificá la conexión a internet.');
+		console.log('\n⚠ No se pudo recolectar artículos. Verificá la conexión.');
 		process.exit(1);
 	}
 
-	// Muestra de los primeros 3 para confirmar que el parser funciona
-	if (DEBUG) {
-		console.log('\n── Muestra primeros 3 artículos ──');
-		for (const a of articles.slice(0, 3)) {
-			console.log(`  título:  ${a.title?.slice(0, 70)}`);
-			console.log(`  url:     ${a.url?.slice(0, 80)}`);
-			console.log(`  fecha:   ${a.date}`);
-			console.log();
-		}
-	}
-
+	// ── Filtrar y preparar nuevas filas ────────────────────────────────────
 	console.log('─────────────────────────────────────\n');
 
-	// ── Filtrar y agregar ─────────────────────────────────────────────────
-	let added = 0;
+	const nuevasFilas = [];
 	const stats = { url: 0, relevancia: 0, fecha: 0, municipio: 0, dupe: 0 };
 
 	for (const a of articles) {
 		if (urlSet.has(a.url)) {
-			dbg(`SKIP url repetida: ${a.url?.slice(0, 60)}`);
 			stats.url++;
 			continue;
 		}
-
 		if (!isRelevant(a.title, a.snippet)) {
-			dbg(`SKIP no relevante: "${a.title?.slice(0, 60)}"`);
 			stats.relevancia++;
 			continue;
 		}
 
 		const fecha = parseDate(a.date);
 		if (!fecha || dateKey(fecha) < dateKey(START_DATE)) {
-			dbg(`SKIP fecha: "${a.date}" → ${fecha}`);
 			stats.fecha++;
 			continue;
 		}
 
 		const municipio = detectMunicipio(a.title + ' ' + (a.snippet || ''));
 		if (!municipio) {
-			dbg(`SKIP sin municipio: "${a.title?.slice(0, 60)}"`);
 			stats.municipio++;
 			continue;
 		}
 
 		const ek = eventKey(municipio, fecha);
 		if (eventosConfirmados.has(ek) || eventosPendientes.has(ek)) {
-			dbg(`SKIP dupe: ${municipio} ${fecha}`);
 			stats.dupe++;
 			continue;
 		}
 
-		porVerificar.push({
+		nuevasFilas.push({
 			fecha,
 			municipio,
 			titulo: a.title,
@@ -463,17 +475,20 @@ async function main() {
 
 		urlSet.add(a.url);
 		eventosPendientes.add(ek);
-		added++;
 
 		console.log(`  ✅ [${fecha}] ${municipio} — ${a.title?.slice(0, 65)}`);
 	}
 
-	porVerificar.sort((a, b) => dateKey(b.fecha).localeCompare(dateKey(a.fecha)));
-	saveCSV(CSV_POR_VERIFICAR, porVerificar);
+	// ── Escribir en Sheets ─────────────────────────────────────────────────
+	if (nuevasFilas.length > 0) {
+		console.log(`\n💾 Escribiendo ${nuevasFilas.length} filas nuevas en Sheets...`);
+		await appendRows(sheets, SHEET_POR_VERIFICAR, COLS_POR_VERIFICAR, nuevasFilas);
+		console.log('   ✅ Listo');
+	}
 
+	// ── Resumen ────────────────────────────────────────────────────────────
 	console.log('\n══════════════════════════════════════');
-	console.log(`  Nuevos en por_verificar.csv : ${added}`);
-	console.log(`  Total acumulado             : ${porVerificar.length}`);
+	console.log(`  Filas nuevas agregadas  : ${nuevasFilas.length}`);
 	console.log('──────────────────────────────────────');
 	console.log(`  Descartados — URL repetida  : ${stats.url}`);
 	console.log(`  Descartados — no relevante  : ${stats.relevancia}`);
@@ -482,12 +497,12 @@ async function main() {
 	console.log(`  Descartados — evento duplic.: ${stats.dupe}`);
 	console.log('══════════════════════════════════════\n');
 
-	if (added > 0) {
-		console.log('📋 Abrí data/por_verificar.csv, completá empresa / rubro /');
-		console.log('   despedidos / cerro_empresa y pasá los confirmados a empresas.csv\n');
+	if (nuevasFilas.length > 0) {
+		console.log('📋 Abrí el Sheet, completá empresa / rubro / despedidos /');
+		console.log("   cerro_empresa en 'por_verificar' y pasá los confirmados");
+		console.log("   a la pestaña 'empresas'.\n");
 	} else {
-		console.log('ℹ Todos los artículos ya estaban procesados o fueron descartados.');
-		console.log('  Usá --debug para ver el detalle de cada descarte.\n');
+		console.log('ℹ Sin noticias nuevas hoy.\n');
 	}
 }
 
