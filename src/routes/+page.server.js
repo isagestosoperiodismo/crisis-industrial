@@ -1,6 +1,9 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
 
+export const prerender = true;
+
+
 function parseCSV(content) {
 	const text = content.replace(/\uFEFF/g, "").trim();
 	if (!text) return [];
