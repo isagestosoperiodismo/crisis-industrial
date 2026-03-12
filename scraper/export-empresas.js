@@ -75,6 +75,12 @@ async function main() {
 
 	fs.writeFileSync(OUT_PATH, stringifyCSV(mapped, COLS), 'utf-8');
 	console.log(`OK: data/empresas.csv actualizado (${mapped.length} filas).`);
+	if (mapped.length > 0) {
+		const sample = mapped[0];
+		console.log(
+			`Muestra 1ra fila: ${sample.fecha} | ${sample.empresa} | ${sample.municipio} | ${sample.cerro_empresa}`
+		);
+	}
 }
 
 main().catch((e) => {
