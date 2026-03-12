@@ -65,7 +65,7 @@
 					<td class="px-4 py-3">
 						{#if isCerroSi(e.cerro)}
 							<span class={ui.badgeCerro}>Cerró</span>
-						{:else if e.cerro === 'No'}
+						{:else if String(e.cerro || '').trim().toLowerCase() === 'no'}
 							<span class={ui.badgeReduccion}>Redujo personal</span>
 						{:else}
 							<span class={ui.badgeSinDato}>Sin dato</span>
