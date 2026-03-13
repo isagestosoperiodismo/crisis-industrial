@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 import fs from 'fs';
 import path from 'path';
 import { GoogleAuth } from 'google-auth-library';
@@ -9,7 +9,16 @@ const CREDS_RAW = process.env.GOOGLE_CREDENTIALS;
 
 const SHEET_NAME = process.env.SHEET_NAME || 'empresas';
 const OUT_PATH = path.resolve('data/empresas.csv');
-const COLS = ['fecha', 'empresa', 'rubro', 'despedidos', 'provincia', 'municipio', 'cerro_empresa'];
+const COLS = [
+	'fecha',
+	'empresa',
+	'rubro',
+	'despedidos',
+	'provincia',
+	'municipio',
+	'cerro_empresa',
+	'link'
+];
 
 function normalize(text) {
 	return (text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -69,7 +78,8 @@ async function main() {
 		municipio: normalize(r.municipio || r['si fue en pba poner en que municipio'] || '')
 			.trim()
 			.toUpperCase(),
-		cerro_empresa: r.cerro_empresa || r['la empresa cerro?'] || r['¿la empresa cerró?'] || ''
+		cerro_empresa: r.cerro_empresa || r['la empresa cerro?'] || r['Â¿la empresa cerrÃ³?'] || '',
+		link: r.link || r.enlace || r.url || r.fuente || r.nota || ''
 	}));
 
 	fs.writeFileSync(OUT_PATH, stringifyCSV(mapped, COLS), 'utf-8');
@@ -81,7 +91,7 @@ async function main() {
 			`Muestra 1ra fila: ${sample.fecha} | ${sample.empresa} | ${sample.municipio} | ${sample.cerro_empresa}`
 		);
 		console.log(
-			`Muestra última fila: ${last.fecha} | ${last.empresa} | ${last.municipio} | ${last.cerro_empresa}`
+			`Muestra Ãºltima fila: ${last.fecha} | ${last.empresa} | ${last.municipio} | ${last.cerro_empresa}`
 		);
 	}
 }
@@ -90,3 +100,5 @@ main().catch((e) => {
 	console.error('Error exportando empresas:', e);
 	process.exit(1);
 });
+
+
