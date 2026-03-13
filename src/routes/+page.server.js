@@ -193,10 +193,12 @@ export async function load() {
 	const municipiosUnicos = [...new Set(empresas.map((e) => e.municipio).filter(Boolean))].sort();
 	const rubrosUnicos = [...new Set(empresas.map((e) => e.rubro).filter(Boolean))].sort();
 
-	const lastUpdatedDate = empresas
-		.map((e) => parseFecha(e.fecha))
-		.filter(Boolean)
-		.sort((a, b) => b - a)[0];
+	const fechas = empresas.map((e) => parseFecha(e.fecha)).filter(Boolean);
+	const now = new Date();
+	const fechasNoFuturas = fechas.filter((d) => d <= now);
+	const lastUpdatedDate = (fechasNoFuturas.length ? fechasNoFuturas : fechas).sort(
+		(a, b) => b - a
+	)[0];
 
 	return {
 		empresas,
