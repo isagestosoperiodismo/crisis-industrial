@@ -5,7 +5,6 @@
 	export let onToggleOrden;
 	export let flechas;
 	export let isCerroSi;
-	export let rubroColor;
 	export let ui;
 	export let rowClass;
 
@@ -25,6 +24,13 @@
 		}
 		if (!date) return s;
 		return date.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+	};
+
+	const normalizeLink = (value) => {
+		const v = String(value || '').trim();
+		if (!v) return '';
+		if (/^https?:\/\//i.test(v)) return v;
+		return `https://${v}`;
 	};
 </script>
 
@@ -48,6 +54,7 @@
 					Empleados {flechas('empleados')}
 				</th>
 				<th class={ui.thStatic}>Estado</th>
+				<th class={ui.thStatic}>Ver</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -57,7 +64,7 @@
 					<td class={ui.cellCompany}>{e.empresa}</td>
 					<td class={`hidden md:table-cell ${ui.cellMono}`}>{e.municipio}</td>
 					<td class="px-4 py-3">
-						<span class={`${ui.badgeBase} ${rubroColor(e.rubro)}`}>{e.rubro}</span>
+						<span class={ui.badgeBase}>{e.rubro}</span>
 					</td>
 					<td class={ui.cellRight}>
 						{e.empleados > 0 ? e.empleados.toLocaleString('es-AR') : '—'}
@@ -71,10 +78,23 @@
 							<span class={ui.badgeSinDato}>Sin dato</span>
 						{/if}
 					</td>
+					<td class={ui.cellMono}>
+						{#if e.link}
+							<a
+								class="underline"
+								href={normalizeLink(e.link)}
+								target="_blank"
+								rel="noreferrer"
+								>Ver</a
+							>
+						{:else}
+							—
+						{/if}
+					</td>
 				</tr>
 			{:else}
 				<tr>
-					<td colspan="6" class={ui.empty}>
+					<td colspan="7" class={ui.empty}>
 						No hay resultados para los filtros seleccionados.
 					</td>
 				</tr>

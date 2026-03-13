@@ -3,7 +3,7 @@ import path from "node:path";
 import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
 
-export const prerender = true;
+export const prerender = false;
 
 function parseCSV(content) {
 	const text = content.replace(/\uFEFF/g, "").trim();
@@ -103,7 +103,12 @@ const columnKeyMap = {
 	[normalizeKey("si fue en pba poner en que municipio")]: "municipio",
 	[normalizeKey("cerro_empresa")]: "cerro_empresa",
 	[normalizeKey("la empresa cerro?")]: "cerro_empresa",
-	[normalizeKey("¿la empresa cerró?")]: "cerro_empresa"
+	[normalizeKey("¿la empresa cerró?")]: "cerro_empresa",
+	[normalizeKey("link")]: "link",
+	[normalizeKey("enlace")]: "link",
+	[normalizeKey("url")]: "link",
+	[normalizeKey("nota")]: "link",
+	[normalizeKey("fuente")]: "link"
 };
 
 function mapRowsToEmpresas(raw) {
@@ -121,7 +126,8 @@ function mapRowsToEmpresas(raw) {
 			empleados: parseInt(r["despedidos"]) || 0,
 			provincia: r["provincia"] || "",
 			municipio: normalizeText(r["municipio"] || "").trim().toUpperCase(),
-			cerro: (r["cerro_empresa"] || "").trim()
+			cerro: (r["cerro_empresa"] || "").trim(),
+			link: (r["link"] || "").trim()
 		};
 	});
 }

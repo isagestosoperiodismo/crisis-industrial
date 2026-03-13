@@ -129,19 +129,6 @@
 		return ['Si', 'Sí', 'SÍ', 'SI', 'si'].includes(value);
 	};
 
-	const rubroColor = (rubro) => {
-		const r = rubro.split('/')[0].trim().toLowerCase();
-		if (r.includes('alimento')) return 'bg-[#d7e2b8] text-[#1a1a16]';
-		if (r.includes('automotriz')) return 'bg-[#c3d2e8] text-[#1a1a16]';
-		if (r.includes('textil')) return 'bg-[#e8c3d8] text-[#1a1a16]';
-		if (r.includes('construc')) return 'bg-[#f1d59a] text-[#1a1a16]';
-		if (r.includes('logistica')) return 'bg-[#f0c3a3] text-[#1a1a16]';
-		if (r.includes('comercio')) return 'bg-[#c2e0da] text-[#1a1a16]';
-		if (r.includes('farmac')) return 'bg-[#d4c7f2] text-[#1a1a16]';
-		if (r.includes('quimica')) return 'bg-[#bfe0de] text-[#1a1a16]';
-		if (r.includes('electrodom')) return 'bg-[#c6d8f2] text-[#1a1a16]';
-		return 'bg-[#e1d7c3] text-[#1a1a16]';
-	};
 </script>
 
 <svelte:head>
@@ -265,7 +252,6 @@
 			onToggleOrden={toggleOrden}
 			{flechas}
 			{isCerroSi}
-			{rubroColor}
 			{ui}
 			{rowClass}
 		/>
