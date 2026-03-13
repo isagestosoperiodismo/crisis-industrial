@@ -3,7 +3,7 @@ import path from "node:path";
 import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
 
-export const prerender = false;
+export const prerender = true;
 
 function parseCSV(content) {
 	const text = content.replace(/\uFEFF/g, "").trim();
