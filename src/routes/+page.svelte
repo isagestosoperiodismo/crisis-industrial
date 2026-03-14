@@ -17,30 +17,30 @@
 
 	const ui = {
 		input:
-			'min-w-[200px] rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
+			'min-w-[200px] rounded-none border-2 border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		select:
-			'cursor-pointer rounded-none border-2 border-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
+			'cursor-pointer rounded-none border-2 border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		button:
-			'cursor-pointer rounded-none border-2 border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-[Space_Mono] text-xs text-[#f7f1e1] hover:bg-[#333]',
-		th: 'cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
+			'cursor-pointer rounded-none border-2 border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-sans text-xs text-[#f7f1e1] hover:bg-[#333]',
+		th: 'cursor-pointer px-4 py-3 text-left font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
 		thRight:
-			'cursor-pointer px-4 py-3 text-right font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
+			'cursor-pointer px-4 py-3 text-right font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
 		thHidden:
-			'hidden cursor-pointer px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none md:table-cell',
+			'hidden cursor-pointer px-4 py-3 text-left font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none md:table-cell',
 		thStatic:
-			'px-4 py-3 text-left font-[Space_Mono] text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase',
-		cellMono: 'px-4 py-3 font-[Space_Mono] text-xs whitespace-nowrap text-[#3a2f2b]',
-		cellCompany: 'px-4 py-3 font-[Space_Mono] font-bold text-[#1a1a16]',
-		cellRight: 'px-4 py-3 text-right font-[Space_Mono] text-xs text-[#1a1a16]',
+			'px-4 py-3 text-left font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase',
+		cellMono: 'px-4 py-3 font-sans text-xs whitespace-nowrap text-[#3a2f2b]',
+		cellCompany: 'px-4 py-3 font-sans font-bold text-[#1a1a16]',
+		cellRight: 'px-4 py-3 text-right font-sans text-xs text-[#1a1a16]',
 		badgeBase:
-			'inline-block rounded-none border-2 border-[#1a1a16] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em]',
+			'inline-block rounded-none border-2 border-[#1a1a16] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em]',
 		badgeCerro:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]',
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]',
 		badgeReduccion:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
 		badgeSinDato:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-[Space_Mono] text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
-		empty: 'text-center py-16 font-[Space_Mono] text-xs text-[#3a2f2b]'
+			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
+		empty: 'text-center py-16 font-sans text-xs text-[#3a2f2b]'
 	};
 
 	const rowClass = (cerro) =>
@@ -132,26 +132,20 @@
 </script>
 
 <svelte:head>
-	<title>Empresas que cerraron o despidieron en el Conurbano Bonaerense</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
-		rel="stylesheet"
-	/>
+	<title>Crisis Industrial en PBA</title>
 </svelte:head>
 
-<div class="min-h-screen bg-white font-[Cormorant_Garamond] text-[#1a1a16]">
+<div class="min-h-screen bg-white font-[Arial] text-[#1a1a16]">
+	<div class="mx-auto w-full max-w-6xl px-6 md:px-10">
 	<!-- Header -->
-	<header class="relative px-6 py-8 md:px-10">
+	<header class="relative py-8">
 		<div class="flex flex-wrap items-start justify-between gap-6">
 			<div>
-				<h1
-					class="font-[Archivo_Black] text-3xl tracking-[0.05em] text-[#1a1a16] uppercase md:text-4xl"
-				>
-					Registro de despidos y cierres en fábricas del Conurbano Bonaerense
+				<h1 class="text-3xl font-bold tracking-[0.02em] text-[#1a1a16] uppercase md:text-4xl">
+					Registro de despidos y cierres en empresas del Conurbano Bonaerense
 				</h1>
-				<p class="mt-1 font-[Space_Mono] text-xs text-[#3a2f2b]">
-					Desde noviembre de 2023 · Última actualización:{' '}
+				<p class="mt-1 font-sans text-xs text-[#3a2f2b]">
+					Desde noviembre de 2023 · Última actualización:
 					{lastUpdated
 						? new Date(lastUpdated).toLocaleDateString('es-AR', {
 								day: '2-digit',
@@ -160,10 +154,9 @@
 						  })
 						: 'sin datos'}
 				</p>
-				<p class="mt-2 max-w-2xl font-[Space_Mono] text-xs text-[#3a2f2b]">
+				<p class="mt-2 max-w-2xl font-sans text-xs text-[#3a2f2b]">
 					Los datos obtenidos corresponden a un relevamiento diario en diversos medios de
-					comunicación locales y nacionales. Al no existir un registro oficial, puede haber errores
-					u omisiones. Para consultas, correcciones o aportes, completá este{' '}
+					comunicación tanto locales como nacionales. Parte de la información proviene de un listado NO OFICIAL del Ministerio de Producción de PBA, es por eso que puede estar incompleto. Para consultas, correcciones o aportes, completá este
 					<a
 						class="underline"
 						href="https://docs.google.com/forms/d/e/1FAIpQLSd9un2YDnEq5ZEPSRTPgFmQK2trRr2OxyaoRZAccAX6O6i7NQ/viewform?usp=publish-editor"
@@ -174,28 +167,28 @@
 
 			<div class="flex shrink-0 flex-wrap items-center gap-4">
 				<div class="text-right">
-					<span class="block font-[Archivo_Black] text-2xl leading-none text-[#c6382f]"
+					<span class="block text-2xl font-bold leading-none text-[#c6382f]"
 						>{empresas.length}</span
 					>
-					<span class="font-[Space_Mono] text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
+					<span class="font-sans text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
 						>empresas</span
 					>
 				</div>
 				<div class="h-10 w-px bg-[#1a1a16]"></div>
 				<div class="text-right">
-					<span class="block font-[Archivo_Black] text-2xl leading-none text-[#c6382f]"
+					<span class="block text-2xl font-bold leading-none text-[#c6382f]"
 						>{totalEmpleados.toLocaleString('es-AR')}</span
 					>
-					<span class="font-[Space_Mono] text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
+					<span class="font-sans text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
 						>empleos perdidos</span
 					>
 				</div>
 				<div class="h-10 w-px bg-[#1a1a16]"></div>
 				<div class="text-right">
-					<span class="block font-[Archivo_Black] text-2xl leading-none text-[#c6382f]"
+					<span class="block text-2xl font-bold leading-none text-[#c6382f]"
 						>{totalCierres}</span
 					>
-					<span class="font-[Space_Mono] text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
+					<span class="font-sans text-[0.65rem] tracking-wide text-[#3a2f2b] uppercase"
 						>cierres definitivos</span
 					>
 				</div>
@@ -204,7 +197,7 @@
 	</header>
 
 	<!-- Filtros -->
-	<section class="border-b-[3px] px-6 py-4 md:px-10">
+	<section class="border-b-[3px] py-4">
 		<div class="flex flex-wrap items-center gap-2">
 			<input
 				type="text"
@@ -234,7 +227,7 @@
 			{/if}
 		</div>
 
-		<div class="flex gap-2 font-[Space_Mono] text-xs text-[#3a2f2b]">
+		<div class="flex gap-2 font-sans text-xs text-[#3a2f2b]">
 			<span>{filtered.length} empresa{filtered.length !== 1 ? 's' : ''}</span>
 			{#if filtered.length !== empresas.length}
 				<span>·</span>
@@ -258,7 +251,8 @@
 	</main>
 
 	<!-- Footer -->
-	<footer class="border-t-[3px] border-[#1a1a16] bg-white px-6 py-4">
-		<p class="text-center font-[Space_Mono] text-[0.62rem] text-[#3a2f2b]"></p>
+	<footer class="border-t-[3px] border-[#1a1a16] bg-white py-4">
+		<p class="text-center font-sans text-[0.62rem] text-[#3a2f2b]"></p>
 	</footer>
+	</div>
 </div>
