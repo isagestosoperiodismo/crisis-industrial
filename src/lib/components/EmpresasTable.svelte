@@ -35,7 +35,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="w-full border-[3px] border-[#1a1a16] bg-white">
+	<table class="w-full border border-[#1a1a16] bg-white">
 		<thead>
 			<tr class="sticky top-0 z-10 border-b-[3px] border-[#1a1a16] bg-[#1a1a16]">
 				<th on:click={() => onToggleOrden('fecha')} class={ui.th}>
@@ -102,4 +102,5 @@
 		</tbody>
 	</table>
 </div>
+
 

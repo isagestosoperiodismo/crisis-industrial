@@ -17,11 +17,11 @@
 
 	const ui = {
 		input:
-			'min-w-[200px] rounded-none border-2 border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
+			'min-w-[200px] rounded-none border border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] placeholder:text-[#5a4a42] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		select:
-			'cursor-pointer rounded-none border-2 border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
+			'cursor-pointer rounded-none border border-[#1a1a16] px-3 py-2 font-sans text-xs text-[#1a1a16] focus:outline-none focus:ring-2 focus:ring-[#1a1a16]',
 		button:
-			'cursor-pointer rounded-none border-2 border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-sans text-xs text-[#f7f1e1] hover:bg-[#333]',
+			'cursor-pointer rounded-none border border-[#1a1a16] bg-[#1a1a16] px-3 py-2 font-sans text-xs text-[#f7f1e1] hover:bg-[#333]',
 		th: 'cursor-pointer px-4 py-3 text-left font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
 		thRight:
 			'cursor-pointer px-4 py-3 text-right font-sans text-[0.65rem] tracking-[0.2em] whitespace-nowrap text-[#f7f1e1] uppercase select-none',
@@ -33,18 +33,18 @@
 		cellCompany: 'px-4 py-3 font-sans font-bold text-[#1a1a16]',
 		cellRight: 'px-4 py-3 text-right font-sans text-xs text-[#1a1a16]',
 		badgeBase:
-			'inline-block rounded-none border-2 border-[#1a1a16] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em]',
+			'inline-block rounded-none border border-[#1a1a16] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em]',
 		badgeCerro:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]',
+			'inline-block rounded-none border border-[#1a1a16] bg-[#c6382f] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#f7f1e1]',
 		badgeReduccion:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
+			'inline-block rounded-none border border-[#1a1a16] bg-[#e7b24d] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
 		badgeSinDato:
-			'inline-block rounded-none border-2 border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
+			'inline-block rounded-none border border-[#1a1a16] bg-[#e0d6c0] px-2 py-0.5 font-sans text-[0.65rem] uppercase tracking-[0.08em] text-[#1a1a16]',
 		empty: 'text-center py-16 font-sans text-xs text-[#3a2f2b]'
 	};
 
 	const rowClass = (cerro) =>
-		`border-b-2 border-[#1a1a16] hover:bg-[#f1e2c4] ${cerro ? 'bg-[#f4d1c7]' : ''}`;
+		`border-b border-[#1a1a16] hover:bg-[#f1e2c4] ${cerro ? 'bg-[#f4d1c7]' : ''}`;
 
 	const normalizeClient = (value) =>
 		(value || '')
@@ -256,3 +256,4 @@
 	</footer>
 	</div>
 </div>
+
